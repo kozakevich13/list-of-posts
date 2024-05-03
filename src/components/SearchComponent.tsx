@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import NotificationComponent from "./NotificationComponent";
 
 interface Post {
   id: number;
@@ -8,49 +9,100 @@ interface Post {
 const SearchComponent: React.FC = () => {
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Post[]>([]);
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [notification, setNotification] = useState("");
 
-  const fetchSuggestions = (input: string) => {
-    fetch(`https://jsonplaceholder.typicode.com/posts?q=${input}`)
-      .then((response) => response.json())
-      .then((data) => setSuggestions(data.slice(0, 10)))
-      .catch((error) => console.error("Failed to fetch suggestions:", error));
+  const fetchSuggestions = (searchText: string) => {
+    const trimmedSearchText = searchText.trim();
+
+    if (trimmedSearchText.length > 0) {
+      fetch("https://jsonplaceholder.typicode.com/posts")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Server response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("API Data:", data);
+          const validPosts = data.filter(
+            (post: Post) =>
+              post.title &&
+              post.title.toLowerCase().includes(trimmedSearchText.toLowerCase())
+          );
+
+          if (validPosts.length > 0) {
+            setSuggestions(validPosts.slice(0, 10));
+            setShowSuggestions(true);
+          } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch suggestions:", error);
+          setSuggestions([]);
+          setShowSuggestions(false);
+        });
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
   };
 
   useEffect(() => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    const newTimer = setTimeout(() => {
-      if (input.length > 2) {
-        fetchSuggestions(input);
-      } else {
-        setSuggestions([]);
-      }
+    const handle = setTimeout(() => {
+      fetchSuggestions(input);
     }, 300);
-    setTimer(newTimer);
-
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
+    return () => clearTimeout(handle);
   }, [input]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value);
+  };
+
+  const handleSelect = (title: string) => {
+    setInput(title);
+    setShowSuggestions(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setNotification(`You searched for: ${input}`);
+    setInput("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const closeNotification = () => {
+    setNotification("");
+  };
 
   return (
     <div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Search posts..."
-      />
-      {suggestions.length > 0 && (
-        <ul>
-          {suggestions.map((post) => (
-            <li key={post.id} onClick={() => setInput(post.title)}>
-              {post.title}
-            </li>
-          ))}
-        </ul>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={input}
+          onChange={handleChange}
+          onFocus={() => input && fetchSuggestions(input)}
+        />
+        {showSuggestions && suggestions.length > 0 && (
+          <ul>
+            {suggestions.map((post: Post) => (
+              <li key={post.id} onClick={() => handleSelect(post.title)}>
+                {post.title}
+              </li>
+            ))}
+          </ul>
+        )}
+        <button type="submit">Search</button>
+      </form>
+      {notification && (
+        <NotificationComponent
+          message={notification}
+          onClose={closeNotification}
+        />
       )}
     </div>
   );
