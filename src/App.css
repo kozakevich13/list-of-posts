@@ -1,38 +1,123 @@
-.App {
-  text-align: center;
+body {
+  font-family: "Arial", sans-serif;
+  margin: 20px;
+  background-color: #f4f4f9;
+  color: #333;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+input {
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 2px solid #2c3e50;
+  border-radius: 5px;
+  font-size: 16px;
+}
+button {
+  padding: 10px;
+  margin: 5px;
+  border: 2px solid #2c3e50;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+input {
+  width: calc(100% - 22px);
+  color: #2c3e50;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+button {
+  cursor: pointer;
+  background-color: #2c3e50;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #21403c;
+}
+
+button:disabled {
+  background-color: #ccc;
+  color: #666;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 8px;
+  background-color: white;
+  border: 1px solid #2c3e50;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+li:hover {
+  background-color: #ff6b6b;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.post-card {
+  background-color: white;
+  border: 1px solid #2c3e50;
+  border-radius: 5px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-card h4 {
+  color: #2c3e50;
+}
+
+.post-card p {
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .posts-grid {
+    grid-template-columns: 1fr;
   }
-  to {
-    transform: rotate(360deg);
-  }
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.page-btn,
+.active-page {
+  padding: 5px 10px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.page-btn:hover {
+  background-color: #21403c;
+}
+
+.active-page {
+  background-color: #ff6b6b;
+  cursor: default;
+}
+
+button[disabled],
+.page-btn:hover:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }
